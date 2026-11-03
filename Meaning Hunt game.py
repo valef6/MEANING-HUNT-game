@@ -1,79 +1,93 @@
 import random
 
 """
-This function creates the dictionary or the vocabulary matrix of the game
-Create a list with the terms and the definitions
-return the list
+This function creates the vocabulary matrix
+It returns a nested list (matrix) with term, definition and hint
 """
 def vocabulary_matrix():
-    vocabulary_matrix = (("input", "-Predefined function to ask data to the user"),("int", "-Used for whole numbers"),("float","-Used for decimal numbers"),("str","-Used for text"),("loop","-Cyclic behavior that repeats code"),("if","-Conditional for decisions"))
+    vocabulary_matrix = [
+        ["input", "Predefined function to ask data to the user", "starts with in"],
+        ["int", "Used for whole numbers", "like 1, 2, 3"],
+        ["float", "Used for decimal numbers", "like 3.5"],
+        ["str", "Used for text", "uses quotes"],
+        ["loop", "Cyclic behavior that repeats code", "for or while"],
+        ["if", "Conditional for decisions", "checks True or False"],
+        ["print", "Function to show text on screen", "you use it a lot"],
+        ["list", "Used to store many variables", "uses brackets []"]
+    ]
     return vocabulary_matrix
 
 """
-This functionn chooses a random definition from the vocabulary matrix
-The random.choice is used to select a random definition from the list
-Correct_term,correct_definition= is used to separate the term and the definition
-Return the correct term and also the correct definition
+This function chooses a random question from the matrix
+Returns term, definition and hint
 """
 def random_question(vocabulary_matrix):
-    correct_term, correct_definition = random.choice(vocabulary_matrix)
-    return correct_term, correct_definition
+    correct_term, correct_definition, hint = random.choice(vocabulary_matrix)
+    return correct_term, correct_definition, hint
 
 """
-This function checks if the answer that the player gives is correct or incorrect
-Compares the player_answer with the correct_term
-If the player_answer and the correct_term are equal return True
-Else return False
+This function checks if the answer is correct
+Uses string functions to compare without caring about capital letters
 """
-def check_the_answer(player_answer,correct_term):
-    if player_answer==correct_term:
+def check_the_answer(player_answer, correct_term):
+    player_answer = player_answer.strip().lower()
+    correct_term = correct_term.strip().lower()
+    if player_answer == correct_term:
         return True
     else:
         return False
 
 """
-This is the main function of the game
-get the matrix
-set the players score to 0
-set the total questions to 3 by using a loop
-get a random question from the vocabulary matrix
-check if thee players answer is empty whith a conditional
- check the players answer
-print if the answer is correct or incorrect
-change the score
-print the current score in each round
-calculate the average
-calculate the questios that were wrong 
-print the final score and percentage
+Main function of the game
+Now with configurable rounds and better lists
 """
 def main():
-    matrix=vocabulary_matrix()
-    score=0
-    total=3
+    matrix = vocabulary_matrix()
+    total_input = input("How many rounds do you want to play? (1-8): ")
+    if not total_input.isdigit():
+        print("Not a number, we will use 3 rounds")
+        total = 3
+    else:
+        total = int(total_input)
+        if total > len(matrix):
+            total = len(matrix)
+        if total < 1:
+            total = 3
+    score = 0
+    correct_list = []
+    wrong_list = []
     for i in range(total):
-        correct_term, correct_definition=random_question(matrix)
-        print("What is the correct term for this definition?")
+        correct_term, correct_definition, hint = random_question(matrix)
+        print("\nWhat is the correct term for this definition?")
         print(correct_definition)
-        player_answer = input("Answer:")
-        if player_answer == "":
-            print("You didn´t give an answer, that counts as incorrect")
-        else:    
-            if check_the_answer(player_answer,correct_term):
+        player_answer = input("Answer: ")
+        if player_answer.strip() == "":
+            print("You didn't give an answer, that counts as incorrect")
+            print(f"The answer was {correct_term}")
+            print(f"Hint: {hint}")
+            wrong_list.append(correct_term)
+        else:
+            if check_the_answer(player_answer, correct_term):
                 print("CORRECT!!!")
-                score=score+1
+                score = score + 1
+                correct_list.append(correct_term)
             else:
-                print("INCORRECT, the right answer was",correct_term)   
-        print("Score:", score)
-        print("")
+                print(f"INCORRECT, you said {player_answer}")
+                print(f"The right answer was {correct_term}")
+                print(f"Hint for next time: {hint}")
+                wrong_list.append(correct_term)
+        print(f"Score: {score}")
     average = score / total
     percent = average * 100
-    lost = total - score 
-    print("Final Score:", score, "out of", total)
-    print("You got", percent, "% correct")
-    print("You lost", lost)
+    lost = total - score
+    print("\n--- Final Results ---")
+    print(f"Final Score: {score} out of {total}")
+    print(f"You got {percent} % correct")
+    print(f"You lost {lost}")
+    print("Correct answers: " + ", ".join(correct_list))
+    print("Wrong answers: " + ", ".join(wrong_list))
     if percent >= 70:
         print("GOOD JOB!!!")
     else:
         print("Keep studying")
-
 main()
